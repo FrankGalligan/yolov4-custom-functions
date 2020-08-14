@@ -68,14 +68,19 @@ def main(_argv):
         codec = cv2.VideoWriter_fourcc(*FLAGS.output_format)
         out = cv2.VideoWriter(FLAGS.output, codec, fps, (width, height))
 
+    frame_id = 0
     while True:
         return_value, frame = vid.read()
         if return_value:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(frame)
         else:
-            print('Video has ended or failed, try a different video format!')
-            break
+            if frame_id == vid.get(cv2.CAP_PROP_FRAME_COUNT):
+                print("Video processing complete")
+                break
+            raise ValueError("No image! Try with another video format")
+            #print('Video has ended or failed, try a different video format!')
+            #break
     
         frame_size = frame.shape[:2]
         image_data = cv2.resize(frame, (input_size, input_size))
@@ -129,7 +134,8 @@ def main(_argv):
         fps = 1.0 / (time.time() - start_time)
         print("FPS: %.2f" % fps)
         result = np.asarray(image)
-        cv2.namedWindow("result", cv2.WINDOW_AUTOSIZE)
+        if not FLAGS.dont_show:
+            cv2.namedWindow("result", cv2.WINDOW_AUTOSIZE)
         result = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         
         if not FLAGS.dont_show:
@@ -138,7 +144,11 @@ def main(_argv):
         if FLAGS.output:
             out.write(result)
         if cv2.waitKey(1) & 0xFF == ord('q'): break
-    cv2.destroyAllWindows()
+
+        frame_id += 1
+
+    if not FLAGS.dont_show:
+        cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     try:
