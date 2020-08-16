@@ -28,6 +28,7 @@ flags.DEFINE_string('output', './detections/', 'path to output folder')
 flags.DEFINE_float('iou', 0.45, 'iou threshold')
 flags.DEFINE_float('score', 0.25, 'score threshold')
 flags.DEFINE_boolean('count', False, 'count objects within images')
+flags.DEFINE_boolean('by_class', False, 'count objects by class within images')
 flags.DEFINE_boolean('dont_show', False, 'dont show image output')
 flags.DEFINE_boolean('info', False, 'print info on detections')
 
@@ -97,7 +98,7 @@ def main(_argv):
 
         if FLAGS.count:
             # count objects found
-            counted_classes = count_objects(pred_bbox, by_class = False)
+            counted_classes = count_objects(pred_bbox, FLAGS.by_class)
             # loop through dict and print
             for key, value in counted_classes.items():
                 print("Number of {}s: {}".format(key, value))
